@@ -221,6 +221,9 @@ public struct Message: Sendable, Equatable {
   public let chatID: Int64
   public let guid: String
   public let replyToGUID: String?
+  public let replyToText: String?
+  public let replyToID: Int64?
+  public let replyToSender: String?
   public let sender: String
   public let text: String
   public let date: Date
@@ -240,12 +243,18 @@ public struct Message: Sendable, Equatable {
     handleID: Int64?,
     attachmentsCount: Int,
     guid: String = "",
-    replyToGUID: String? = nil
+    replyToGUID: String? = nil,
+    replyToText: String? = nil,
+    replyToID: Int64? = nil,
+    replyToSender: String? = nil
   ) {
     self.rowID = rowID
     self.chatID = chatID
     self.guid = guid
     self.replyToGUID = replyToGUID
+    self.replyToText = replyToText
+    self.replyToID = replyToID
+    self.replyToSender = replyToSender
     self.sender = sender
     self.text = text
     self.date = date

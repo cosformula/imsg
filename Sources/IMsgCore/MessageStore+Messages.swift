@@ -86,6 +86,14 @@ extension MessageStore {
           associatedGuid: associatedGuid,
           associatedType: associatedType
         )
+        var replyToText: String? = nil
+        var replyToID: Int64? = nil
+        var replyToSender: String? = nil
+        if let rtGUID = replyToGUID, let info = try lookupReplyMessage(guid: rtGUID, db: db) {
+          replyToID = info.0
+          replyToText = info.1
+          replyToSender = info.2
+        }
         messages.append(
           Message(
             rowID: rowID,
@@ -98,7 +106,10 @@ extension MessageStore {
             handleID: handleID,
             attachmentsCount: attachments,
             guid: guid,
-            replyToGUID: replyToGUID
+            replyToGUID: replyToGUID,
+            replyToText: replyToText,
+            replyToID: replyToID,
+            replyToSender: replyToSender
           ))
       }
       return messages
@@ -168,6 +179,14 @@ extension MessageStore {
           associatedGuid: associatedGuid,
           associatedType: associatedType
         )
+        var replyToText: String? = nil
+        var replyToID: Int64? = nil
+        var replyToSender: String? = nil
+        if let rtGUID = replyToGUID, let info = try lookupReplyMessage(guid: rtGUID, db: db) {
+          replyToID = info.0
+          replyToText = info.1
+          replyToSender = info.2
+        }
         messages.append(
           Message(
             rowID: rowID,
@@ -180,7 +199,10 @@ extension MessageStore {
             handleID: handleID,
             attachmentsCount: attachments,
             guid: guid,
-            replyToGUID: replyToGUID
+            replyToGUID: replyToGUID,
+            replyToText: replyToText,
+            replyToID: replyToID,
+            replyToSender: replyToSender
           ))
       }
       return messages

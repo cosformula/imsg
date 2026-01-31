@@ -142,6 +142,24 @@ extension MessageStore {
     return String(guid[nextIndex...])
   }
 
+  /// Look up the original message by GUID, returning (ROWID, text, sender).
+  func lookupReplyMessage(guid: String, db: Connection) throws -> (Int64, String, String)? {
+    let sql = """
+      SELECT m.ROWID, IFNULL(m.text, '') AS text, m.handle_id, IFNULL(h.id, '') AS sender_id, m.is_from_me
+      FROM message m
+      LEFT JOIN handle h ON m.handle_id = h.ROWID
+      WHERE m.guid = ?
+      LIMIT 1
+      """
+    for row in try db.prepare(sql, [guid]) {
+      let rowID = int64Value(row[0]) ?? 0
+      let text = stringValue(row[1])
+      let sender = stringValue(row[3])
+      return (rowID, text, sender)
+    }
+    return nil
+  }
+
   func replyToGUID(replyToGuid: String, associatedGuid: String, associatedType: Int?) -> String? {
     // Prefer reply_to_guid (inline replies) over associated_message_guid
     if !replyToGuid.isEmpty {
