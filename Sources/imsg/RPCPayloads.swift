@@ -50,6 +50,15 @@ func messagePayload(
   ]
   if let replyToGUID = message.replyToGUID, !replyToGUID.isEmpty {
     payload["reply_to_guid"] = replyToGUID
+    if let replyToText = message.replyToText, !replyToText.isEmpty {
+      payload["reply_to_text"] = replyToText
+    }
+    if let replyToID = message.replyToID {
+      payload["reply_to_id"] = replyToID
+    }
+    if let replyToSender = message.replyToSender, !replyToSender.isEmpty {
+      payload["reply_to_sender"] = replyToSender
+    }
   }
   return payload
 }
