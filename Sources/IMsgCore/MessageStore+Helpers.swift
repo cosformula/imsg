@@ -144,8 +144,9 @@ extension MessageStore {
 
   /// Look up the original message by GUID, returning (ROWID, text, sender).
   func lookupReplyMessage(guid: String, db: Connection) throws -> (Int64, String, String)? {
+    let bodyColumn = hasAttributedBody ? "m.attributedBody" : "NULL"
     let sql = """
-      SELECT m.ROWID, IFNULL(m.text, '') AS text, m.handle_id, IFNULL(h.id, '') AS sender_id, m.is_from_me
+      SELECT m.ROWID, IFNULL(m.text, '') AS text, m.handle_id, IFNULL(h.id, '') AS sender_id, m.is_from_me, \(bodyColumn)
       FROM message m
       LEFT JOIN handle h ON m.handle_id = h.ROWID
       WHERE m.guid = ?
@@ -154,8 +155,10 @@ extension MessageStore {
     for row in try db.prepare(sql, [guid]) {
       let rowID = int64Value(row[0]) ?? 0
       let text = stringValue(row[1])
+      let body = dataValue(row[5])
+      let resolvedText = text.isEmpty ? TypedStreamParser.parseAttributedBody(body) : text
       let sender = stringValue(row[3])
-      return (rowID, text, sender)
+      return (rowID, resolvedText, sender)
     }
     return nil
   }
