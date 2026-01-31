@@ -55,7 +55,7 @@ extension MessageStore {
       let rows = try connection.prepare("PRAGMA table_info(message)")
       for row in rows {
         if let name = row[1] as? String,
-          name.caseInsensitiveCompare("reply_to_guid") == .orderedSame
+          name.caseInsensitiveCompare("thread_originator_guid") == .orderedSame
         {
           return true
         }
@@ -170,10 +170,10 @@ extension MessageStore {
     return nil
   }
 
-  func replyToGUID(replyToGuid: String, associatedGuid: String, associatedType: Int?) -> String? {
-    // Prefer reply_to_guid (inline replies) over associated_message_guid
-    if !replyToGuid.isEmpty {
-      return replyToGuid
+  func replyToGUID(threadOriginatorGuid: String, associatedGuid: String, associatedType: Int?) -> String? {
+    // Prefer thread_originator_guid (inline replies) over associated_message_guid
+    if !threadOriginatorGuid.isEmpty {
+      return threadOriginatorGuid
     }
     let normalized = normalizeAssociatedGUID(associatedGuid)
     guard !normalized.isEmpty else { return nil }
