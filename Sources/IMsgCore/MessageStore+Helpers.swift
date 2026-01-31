@@ -50,6 +50,22 @@ extension MessageStore {
     return false
   }
 
+  static func detectReplyToGUID(connection: Connection) -> Bool {
+    do {
+      let rows = try connection.prepare("PRAGMA table_info(message)")
+      for row in rows {
+        if let name = row[1] as? String,
+          name.caseInsensitiveCompare("reply_to_guid") == .orderedSame
+        {
+          return true
+        }
+      }
+    } catch {
+      return false
+    }
+    return false
+  }
+
   static func detectAttachmentUserInfo(connection: Connection) -> Bool {
     do {
       let rows = try connection.prepare("PRAGMA table_info(attachment)")
@@ -126,7 +142,11 @@ extension MessageStore {
     return String(guid[nextIndex...])
   }
 
-  func replyToGUID(associatedGuid: String, associatedType: Int?) -> String? {
+  func replyToGUID(replyToGuid: String, associatedGuid: String, associatedType: Int?) -> String? {
+    // Prefer reply_to_guid (inline replies) over associated_message_guid
+    if !replyToGuid.isEmpty {
+      return replyToGuid
+    }
     let normalized = normalizeAssociatedGUID(associatedGuid)
     guard !normalized.isEmpty else { return nil }
     if let type = associatedType, ReactionType.isReaction(type) {

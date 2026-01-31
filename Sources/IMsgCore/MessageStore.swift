@@ -19,6 +19,7 @@ public final class MessageStore: @unchecked Sendable {
   let hasDestinationCallerID: Bool
   let hasAudioMessageColumn: Bool
   let hasAttachmentUserInfo: Bool
+  let hasReplyToGUID: Bool
 
   public init(path: String = MessageStore.defaultPath) throws {
     let normalized = NSString(string: path).expandingTildeInPath
@@ -41,6 +42,7 @@ public final class MessageStore: @unchecked Sendable {
       self.hasAttachmentUserInfo = MessageStore.detectAttachmentUserInfo(
         connection: self.connection
       )
+      self.hasReplyToGUID = MessageStore.detectReplyToGUID(connection: self.connection)
     } catch {
       throw MessageStore.enhance(error: error, path: normalized)
     }
@@ -53,7 +55,8 @@ public final class MessageStore: @unchecked Sendable {
     hasReactionColumns: Bool? = nil,
     hasDestinationCallerID: Bool? = nil,
     hasAudioMessageColumn: Bool? = nil,
-    hasAttachmentUserInfo: Bool? = nil
+    hasAttachmentUserInfo: Bool? = nil,
+    hasReplyToGUID: Bool? = nil
   ) throws {
     self.path = path
     self.queue = DispatchQueue(label: "imsg.db.test", qos: .userInitiated)
@@ -84,6 +87,11 @@ public final class MessageStore: @unchecked Sendable {
       self.hasAttachmentUserInfo = hasAttachmentUserInfo
     } else {
       self.hasAttachmentUserInfo = MessageStore.detectAttachmentUserInfo(connection: connection)
+    }
+    if let hasReplyToGUID {
+      self.hasReplyToGUID = hasReplyToGUID
+    } else {
+      self.hasReplyToGUID = MessageStore.detectReplyToGUID(connection: connection)
     }
   }
 
